@@ -2,14 +2,12 @@
 session_start();
 require_once 'config.php';
 
-// Helper: fetch chapter by id
 function getChapter($pdo, $chapter_id) {
     $stmt = $pdo->prepare("SELECT * FROM chapters WHERE id = ?");
     $stmt->execute([$chapter_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-// Helper: fetch all books
 function getAllBooks($pdo) {
     $stmt = $pdo->query("SELECT * FROM books ORDER BY title");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -20,7 +18,6 @@ $success = '';
 $chapter = null;
 $existing_books = getAllBooks($pdo);
 
-// Get chapter id from query
 $chapter_id = isset($_GET['chapter_id']) ? (int)$_GET['chapter_id'] : null;
 $delete = isset($_GET['delete']) && $_GET['delete'] == 1;
 
@@ -32,7 +29,6 @@ if ($chapter_id) {
 }
 
 if ($chapter && $delete && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Delete chapter
     $stmt = $pdo->prepare("DELETE FROM chapters WHERE id = ?");
     $stmt->execute([$chapter_id]);
     $_SESSION['success'] = "Chapter deleted successfully!";
@@ -49,14 +45,15 @@ if ($chapter && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($chapter_title) || empty($content)) {
             throw new Exception("Chapter title and content are required");
         }
-        // Check for duplicate chapter title in the same book (case-insensitive, excluding self)
+        /
+        
         $stmt = $pdo->prepare("SELECT id FROM chapters WHERE book_id = ? AND LOWER(chapter_title) = LOWER(?) AND id != ?");
         $stmt->execute([$book_id, $chapter_title, $chapter_id]);
         $existing = $stmt->fetch();
         if ($existing) {
             throw new Exception("Another chapter with this title already exists in this book.");
         }
-        // Update chapter
+        
         $stmt = $pdo->prepare("UPDATE chapters SET book_id = ?, chapter_title = ?, content = ? WHERE id = ?");
         $stmt->execute([$book_id, $chapter_title, $content, $chapter_id]);
         $_SESSION['success'] = "Chapter updated successfully!";
