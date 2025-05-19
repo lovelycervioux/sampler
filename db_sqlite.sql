@@ -1,0 +1,12 @@
+-- Minimal SQLite schema for Book Manager
+CREATE TABLE books (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL
+);
+
+CREATE TABLE chapters (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    book_id INTEGER NOT NULL,
+    chapter_title TEXT NOT NULL,
+    content TEXT NOT NULL
+);
