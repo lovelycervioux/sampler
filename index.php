@@ -2,13 +2,11 @@
 session_start();
 require_once 'config.php';
 
-// Helper: fetch all books
 function getAllBooks($pdo) {
     $stmt = $pdo->query("SELECT * FROM books ORDER BY title");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Helper: fetch all books with chapters
 function getBooksWithChapters($pdo) {
     $stmt = $pdo->query("
         SELECT books.id AS book_id, books.title AS book_title,
