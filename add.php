@@ -2,7 +2,6 @@
 session_start();
 require_once 'config.php';
 
-// Helper: fetch all books
 function getAllBooks($pdo) {
     $stmt = $pdo->query("SELECT * FROM books ORDER BY title");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -11,7 +10,6 @@ function getAllBooks($pdo) {
 $error = '';
 $existing_books = getAllBooks($pdo);
 
-// Pre-fill book_id if coming from index.php
 $selected_book_id = isset($_GET['book_id']) ? (int)$_GET['book_id'] : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -39,13 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("No book selected or created.");
             }
         }
-
-        // Validate chapter
+    
         if (empty($chapter_title) || empty($content)) {
             throw new Exception("Chapter title and content are required");
         }
 
-        // Check for existing chapter (case-insensitive)
         $stmt = $pdo->prepare("SELECT id FROM chapters WHERE book_id = ? AND LOWER(chapter_title) = LOWER(?)");
         $stmt->execute([$book_id, $chapter_title]);
         $existing = $stmt->fetch();
@@ -56,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        // Insert new chapter
         $stmt = $pdo->prepare("INSERT INTO chapters (book_id, chapter_title, content) VALUES (?, ?, ?)");
         $stmt->execute([$book_id, $chapter_title, $content]);
         $_SESSION['success'] = "Chapter added successfully!";
